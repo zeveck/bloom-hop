@@ -1,0 +1,59 @@
+{
+ "level": 8,
+ "tokens": [
+  "L",
+  "D",
+  "D",
+  "R",
+  "R",
+  "R",
+  "U",
+  "U",
+  "tL",
+  "L",
+  "U",
+  "L",
+  "D"
+ ],
+ "keys": [
+  [
+   "ArrowLeft"
+  ],
+  [
+   "ArrowDown"
+  ],
+  [
+   "ArrowDown"
+  ],
+  [
+   "ArrowRight"
+  ],
+  [
+   "ArrowRight"
+  ],
+  [
+   "ArrowRight"
+  ],
+  [
+   "ArrowUp"
+  ],
+  [
+   "ArrowUp"
+  ],
+  [
+   "Shift+ArrowLeft"
+  ],
+  [
+   "ArrowLeft"
+  ],
+  [
+   "ArrowUp"
+  ],
+  [
+   "ArrowLeft"
+  ],
+  [
+   "ArrowDown"
+  ]
+ ]
+}

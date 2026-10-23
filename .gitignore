@@ -1,0 +1,22 @@
+# API keys and local environment
+.env
+.env.*
+
+# Generator history, caches and working files
+.gamegen/
+.anim8gen/
+assets/anim8gen/
+.playwright/
+.*-history.jsonl
+.audiogen-voices.json
+
+# Local tooling and play-test captures
+.claude/
+.devcontainer/
+design/screenshots/
+design/social-card.png
+node_modules/
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db

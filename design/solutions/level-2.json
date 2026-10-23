@@ -1,0 +1,31 @@
+{
+ "level": 2,
+ "tokens": [
+  "U",
+  "R",
+  "D",
+  "R",
+  "U",
+  "U"
+ ],
+ "keys": [
+  [
+   "ArrowUp"
+  ],
+  [
+   "ArrowRight"
+  ],
+  [
+   "ArrowDown"
+  ],
+  [
+   "ArrowRight"
+  ],
+  [
+   "ArrowUp"
+  ],
+  [
+   "ArrowUp"
+  ]
+ ]
+}
