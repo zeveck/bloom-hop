@@ -59,14 +59,17 @@ There's no game over here, only Undo. Win a pond without a hint to earn a
 
 ## How it was made
 
-Bloom Hop was made by [Claude Code](https://claude.com/claude-code) using
+The whole game was made by [Claude Code](https://claude.com/claude-code) with
 **[gamegen](https://github.com/zeveck/gamegen)**, a Claude Code plugin that
-turns a one-line idea into a finished game. It all started from this request:
+turns an idea into a finished game. The design, the 162 levels, the art, the
+animation, the music, the sound effects and every line of code came from this
+one command:
 
-> /gamegen Make an overhead puzzle game in which you're a frog hopping from lilipad to lilipad and each one can only handle so many hops before it sinks and the goal is to hop on every lilipad, perhaps each one has a fly on it or something, and there's music and maybe a dozen level that get harder as you go. They can be generated, but, should always be possible to beat. You could also use your tongue to nudge enemies or something. There could also be turtle pads that surface and sink or fish that come up and give you power ups. When you hop to every lilipad flowers around the level all bloom and you celebrate before moving on.
+> /gg:gamegen Make an overhead puzzle game in which you're a frog hopping from lilipad to lilipad and each one can only handle so many hops before it sinks and the goal is to hop on every lilipad, perhaps each one has a fly on it or something, and there's music and maybe a dozen level that get harder as you go. They can be generated, but, should always be possible to beat. You could also use your tongue to nudge enemies or something. There could also be turtle pads that surface and sink or fish that come up and give you power ups. When you hop to every lilipad flowers around the level all bloom and you celebrate before moving on.
 
-gamegen wrote a design, had a team of reviewer agents (a player, a builder
-and an art director) pick it apart over two rounds, then generated the art and
+That's it: no other instructions, no hand-drawn art, no hand-written code.
+From there, gamegen wrote a design, had a team of reviewer agents (a player,
+a builder and an art director) pick it apart over two rounds, then generated the art and
 audio, built the game, play-tested every level on desktop and phone sizes, and
 had a fresh playtester and bug hunter go over the result. The levels come from
 a generator that walks the frog through each pond so a winning route always
