@@ -697,6 +697,25 @@ canvas.addEventListener('pointercancel', () => { ptr = null; });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 
+// Title-screen links (real <a> elements over the canvas): shown on the title
+// screen only, and a tap or Enter on one opens the link without reaching the game.
+const titleLinks = [...document.querySelectorAll('.title-link')];
+for (const a of titleLinks) {
+  for (const type of ['pointerdown', 'pointerup', 'click', 'touchstart']) a.addEventListener(type, e => e.stopPropagation());
+  a.addEventListener('mousedown', e => e.preventDefault()); // a click doesn't take keyboard focus from the game
+  a.addEventListener('keydown', e => { if (e.key === 'Enter') e.stopPropagation(); });
+}
+let linksShown = false, soundPrompt = null;
+function syncTitleLinks() {
+  const prompt = !audio.ctx; // the "Tap anywhere for sound" line, which very narrow phones can't fit beside a link
+  if (prompt !== soundPrompt) { soundPrompt = prompt; document.body.classList.toggle('sound-prompt', prompt); }
+  const show = G.screen === 'title' && !G.overlay;
+  if (show === linksShown) return;
+  linksShown = show;
+  document.body.classList.toggle('on-title', show);
+  if (!show && titleLinks.includes(document.activeElement)) canvas.focus();
+}
+
 function onTap(x, y) {
   for (let i = G.buttons.length - 1; i >= 0; i--) {
     const b = G.buttons[i];
@@ -1761,6 +1780,7 @@ function frame() {
 }
 function draw() {
   update();
+  syncTitleLinks();
   const t = G.time;
   G.buttons = [];
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);

@@ -36,12 +36,23 @@
     top: env(safe-area-inset-top); right: env(safe-area-inset-right);
     bottom: env(safe-area-inset-bottom); left: env(safe-area-inset-left); }
   #fontwarm { position: absolute; left: -999px; font-family: 'Fredoka'; }
+  .title-link { position: fixed; bottom: calc(env(safe-area-inset-bottom) + 10px); z-index: 2; display: none;
+    padding: 4px 6px; font: 500 13px/1.2 'Fredoka', system-ui, sans-serif; color: #fff4dc; text-decoration: none;
+    text-shadow: 0 1px 2px #2e5a33, 0 0 3px #2e5a33; opacity: 0.7; -webkit-user-select: none; user-select: none; }
+  body.on-title .title-link { display: block; }
+  .title-link:hover, .title-link:focus-visible { opacity: 1; text-decoration: underline; }
+  #link-home { left: calc(env(safe-area-inset-left) + 12px); }
+  #link-github { right: calc(env(safe-area-inset-right) + 12px); }
+  @media (pointer: coarse), (max-width: 600px) { .title-link { font-size: 11px; padding: 6px; } }
+  @media (max-width: 359px) { body.sound-prompt #link-home { display: none; } }
 </style>
 </head>
 <body>
 <canvas id="game" tabindex="0" aria-label="Bloom Hop game"></canvas>
 <div id="safe"></div>
 <div id="fontwarm">Bloom Hop</div>
+<a class="title-link" id="link-home" href="https://synapticnoise.com/">synapticnoise.com</a>
+<a class="title-link" id="link-github" href="https://github.com/zeveck/bloom-hop" target="_blank" rel="noopener" title="Bloom Hop on GitHub: how it was made" aria-label="Bloom Hop on GitHub: how it was made">GitHub</a>
 <script type="module" src="src/main.js"></script>
 <script>
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
