@@ -12,6 +12,52 @@ setLoopPoints(LOOPS);
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
+
+// ---------- "Report a bug" (gh-feedback, vendor/gh-feedback.js) ----------
+// The form opens from the pause menu, the title menu, or Ctrl+Shift+F (index.html).
+// It only shows once the game is published (repo set on the element).
+const fb = document.getElementById('report');
+const FEEDBACK_KEY = 'bloomhop-feedback';
+const FEEDBACK = 'on';
+{
+  const q = new URLSearchParams(location.search);
+  if (q.has('feedback')) {
+    try {
+      if (q.get('feedback') === 'off') localStorage.removeItem(FEEDBACK_KEY);
+      else localStorage.setItem(FEEDBACK_KEY, '1');
+    } catch {}
+  }
+}
+const showReport = () => !!fb?.getAttribute('repo') &&
+  (FEEDBACK === 'on' || (() => { try { return localStorage.getItem(FEEDBACK_KEY) === '1'; } catch { return false; } })());
+// While the form is open the player is typing: the game ignores every key, tap and swipe.
+const reportOpen = () => !!fb && document.activeElement === fb;
+const forReport = e => !!fb && (reportOpen() || !!e.composedPath?.().includes(fb));
+const openReport = () => { if (fb && typeof fb.open === 'function') fb.open(); };
+// The picture sent with a report: the game as it was when it paused, not the pause menu.
+let pauseShot = null;
+const snapshot = () => { pauseShot = new Promise(r => canvas.toBlob(r, 'image/png')); };
+const errors = [];
+const keepError = m => { errors.push(String(m).replace(/\s+/g, ' ').slice(0, 200)); errors.splice(0, errors.length - 5); };
+addEventListener('error', e => keepError(e.message));
+addEventListener('unhandledrejection', e => keepError(e.reason?.message ?? e.reason));
+if (fb) {
+  fb.getScreenshot = () => pauseShot ?? new Promise(r => canvas.toBlob(r, 'image/png'));
+  if (window.desktop) fb.openLink = url => { window.open(url, '_blank'); return true; };
+  // Two fixes for phones, kept here so the vendor file stays unchanged (an adopted sheet
+  // survives the form's re-renders): on narrow screens gh-feedback makes the form a bottom
+  // sheet, but its centring transform still applies and pushes the sheet off the top-left;
+  // and on short screens (a phone held sideways) the form is taller than the screen.
+  customElements.whenDefined('gh-feedback').then(() => {
+    try {
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync('@media (max-width: 479px) { .popup.centered, .popup.centered.open { transform: none; } }' +
+        ' .popup { max-height: min(500px, calc(100vh - 16px)); max-height: min(500px, calc(100dvh - 16px)); }' +
+        ' @media (max-width: 479px) { .popup.open { max-height: min(80vh, calc(100dvh - 16px)); } }');
+      fb.shadowRoot.adoptedStyleSheets = [...fb.shadowRoot.adoptedStyleSheets, sheet];
+    } catch {}
+  });
+}
 const save = new Save();
 const audio = new Audio(save);
 const FONT = 'Fredoka, system-ui, sans-serif';
@@ -557,6 +603,7 @@ function toast(text) { G.toast = { text, t: now() }; }
 // ---------- input ----------
 const keysDown = new Set();
 window.addEventListener('keydown', e => {
+  if (forReport(e)) return;
   const k = e.key;
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Backspace', 'Tab'].includes(k)) e.preventDefault();
   if (e.repeat && !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(k)) return;
@@ -564,7 +611,7 @@ window.addEventListener('keydown', e => {
   keysDown.add(k);
   onKey(k, e.shiftKey);
 });
-window.addEventListener('keyup', e => keysDown.delete(e.key));
+window.addEventListener('keyup', e => { if (!forReport(e)) keysDown.delete(e.key); });
 const KEY_DIR = { ArrowUp: 'U', ArrowDown: 'D', ArrowLeft: 'L', ArrowRight: 'R', w: 'U', s: 'D', a: 'L', d: 'R', W: 'U', S: 'D', A: 'L', D: 'R' };
 
 function onKey(k, shift) {
@@ -675,6 +722,7 @@ function tapCell(cx, cy) {
 // Pointer: buttons first, then the board (tap or swipe).
 let ptr = null;
 canvas.addEventListener('pointerdown', e => {
+  if (forReport(e)) return;
   e.preventDefault();
   audio.unlock();
   canvas.focus();
@@ -682,6 +730,7 @@ canvas.addEventListener('pointerdown', e => {
 });
 canvas.addEventListener('pointerup', e => {
   if (!ptr || ptr.id !== e.pointerId) return;
+  if (forReport(e)) { ptr = null; return; }
   const dx = e.clientX - ptr.x, dy = e.clientY - ptr.y;
   const start = ptr;
   ptr = null;
@@ -695,7 +744,7 @@ canvas.addEventListener('pointerup', e => {
 });
 canvas.addEventListener('pointercancel', () => { ptr = null; });
 canvas.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+document.addEventListener('touchmove', e => { if (!forReport(e)) e.preventDefault(); }, { passive: false });
 
 // Title-screen links (real <a> elements over the canvas): shown on the title
 // screen only, and a tap or Enter on one opens the link without reaching the game.
@@ -743,6 +792,7 @@ function onTap(x, y) {
 // ---------- menus ----------
 function goScreen(s) {
   cancelHint();
+  pauseShot = null;
   G.screen = s; G.overlay = null; G.bloom = null; G.menuFocus = 0;
   if (s === 'title' || s === 'levels' || s === 'howto') audio.playArea('morning');
   if (s === 'victory') { audio.playArea('moon'); G.victoryT = now(); }
@@ -763,9 +813,11 @@ function nextLevel() {
 }
 function togglePause() {
   if (G.screen !== 'play') return;
-  if (G.overlay === 'pause') { G.overlay = G.prevOverlay || null; G.prevOverlay = null; audio.resume(); audio.setPaused(false); }
-  else if (G.overlay !== 'complete') { G.prevOverlay = G.overlay; G.overlay = 'pause'; G.menuFocus = 0; audio.setPaused(true); }
+  if (G.overlay === 'pause') { G.overlay = G.prevOverlay || null; G.prevOverlay = null; pauseShot = null; audio.resume(); audio.setPaused(false); }
+  else if (G.overlay !== 'complete') { snapshot(); G.prevOverlay = G.overlay; G.overlay = 'pause'; G.menuFocus = 0; audio.setPaused(true); }
 }
+// Ctrl+Shift+F (index.html) calls this first: pause the usual way, so the report shows the level.
+window.reportShortcut = () => { if (G.screen === 'play' && G.overlay !== 'pause') togglePause(); };
 function howtoPage(delta) {
   G.howtoPage += delta;
   if (G.howtoPage < 0) G.howtoPage = 0;
@@ -1538,9 +1590,11 @@ function drawOverlay(t) {
   const W = Math.min(VW - 32, 380);
   if (o === 'pause') {
     dim(0.5);
-    const H = Math.min(360, VH - SAFE.t - SAFE.b - 16);
+    const report = showReport();
+    const n = report ? 6 : 5;
+    const H = Math.min(report ? 420 : 360, VH - SAFE.t - SAFE.b - 16);
     const c = card(W, H);
-    const bh = Math.min(50, (H - 90) / 5 - 8);
+    const bh = Math.min(50, (H - 90) / n - 8);
     text('Paused', c.x + W / 2, c.y + Math.min(42, bh + 6), Math.min(30, bh * 0.75), { weight: 700 });
     const bw = W - 60;
     const items = [
@@ -1550,8 +1604,9 @@ function drawOverlay(t) {
       [`Music: ${audio.musicMuted ? 'off' : 'on'}`, () => audio.setMusicMuted(!audio.musicMuted)],
       [`Sounds: ${audio.sfxMuted ? 'off' : 'on'}`, () => audio.setSfxMuted(!audio.sfxMuted)],
     ];
+    if (report) items.push(['Report a bug', openReport]);
     items.forEach(([label, on, primary], i) => {
-      const b = { x: c.x + 30, y: c.y + H - 16 - (5 - i) * (bh + 8) + 8, w: bw, h: bh };
+      const b = { x: c.x + 30, y: c.y + H - 16 - (n - i) * (bh + 8) + 8, w: bw, h: bh };
       button(b, label, { primary, small: true, focus: G.menuFocus % items.length === i });
       addButton(b, on, { menu: true });
     });
@@ -1613,12 +1668,16 @@ function drawDecorRing(t, key) {
     drawSprite('dragonfly', x, y, m * 0.07, { rot: t * 0.21 + i * 3 + Math.PI / 2, scaleY: 0.9 + 0.1 * Math.sin(t * 30) });
   }
 }
+// A def with { half: 'left' } or { half: 'right' } shares its row with its neighbour.
 function menuButtons(defs, top, bw, bh) {
   const btns = [];
-  defs.forEach(([label, on, opts = {}], i) => {
-    const b = { x: (VW - bw) / 2, y: top + i * (bh + 12), w: bw, h: bh };
+  let row = -1;
+  defs.forEach(([label, on, opts = {}]) => {
+    if (opts.half !== 'right') row++;
+    const b = { x: (VW - bw) / 2, y: top + row * (bh + 12), w: bw, h: bh };
+    if (opts.half) { b.w = (bw - 12) / 2; if (opts.half === 'right') b.x += b.w + 12; }
     const focus = G.menuFocus % defs.filter(d => !(d[2] || {}).disabled).length === btns.length && !opts.disabled;
-    button(b, label, { ...opts, focus });
+    button(b, label, { ...opts, focus, small: opts.small || !!opts.half });
     addButton(b, on, { menu: true, disabled: opts.disabled });
     if (!opts.disabled) btns.push(b);
   });
@@ -1648,7 +1707,8 @@ function drawTitle(t) {
     [anyCleared ? 'Continue' : 'Play', () => continueLevel(), { primary: true }],
     ['Levels', () => goScreen('levels')],
     [wildOpen ? 'Wild Pond' : 'Wild Pond (after level 8)', () => startLevel({ mode: 'wild', pondNo: save.data.wildNext || 1 }), { disabled: !wildOpen }],
-    ['How to Play', () => { G.howtoPage = 0; G.howtoThen = null; goScreen('howto'); }],
+    ['How to Play', () => { G.howtoPage = 0; G.howtoThen = null; goScreen('howto'); }, showReport() ? { half: 'left' } : {}],
+    ...(showReport() ? [['Report a bug', openReport, { half: 'right' }]] : []),
   ], menuTop, bw, bh);
   button(LAY.mute, '', { icon: audio.allMuted ? 'muted' : 'sound' });
   addButton(LAY.mute, () => audio.toggleAll());
@@ -1731,7 +1791,7 @@ function drawHowto(t) {
     drawSprite('pu-mend', cx + u * 2.1, icy - u * 0.6, u * 0.4);
   }
   let y = iy + ih + 26;
-  const lines = TOUCH ? (p.touch || p.lines) : p.lines;
+  const lines = TOUCH ? (p.touch || p.lines) : G.howtoPage === 0 && showReport() ? [...p.lines, 'Found a bug? Ctrl+Shift+F: report a bug.'] : p.lines;
   const fs = H < 470 ? 15 : 17;
   for (const ln of lines) {
     const ls = wrap(ln, W - 50, fs);
@@ -1775,7 +1835,7 @@ function drawVictory(t) {
 
 // ---------- main loop ----------
 function frame() {
-  try { draw(); } catch (e) { console.error(e); }
+  try { draw(); } catch (e) { console.error(e); keepError(e && e.message || e); }
   requestAnimationFrame(frame);
 }
 function draw() {
@@ -1833,6 +1893,28 @@ window.__game = {
   board: () => ({ ...LAY.board, cells: G.L ? G.L.w : 0 }),
   screen: s => goScreen(s),
   save: () => JSON.parse(JSON.stringify(save.data)),
+};
+
+// ---------- details sent with a bug report ----------
+let lastInput = 'none';
+addEventListener('keydown', e => { if (!forReport(e)) lastInput = 'keyboard'; }, true);
+addEventListener('pointerdown', e => { if (!forReport(e)) lastInput = e.pointerType || 'pointer'; }, true);
+const flat = v => String(v).replace(/\s+/g, ' ');
+if (fb) fb.getContext = () => {
+  const st = window.__game.state();
+  const where = st.screen !== 'play' ? st.screen
+    : st.mode === 'wild' ? `wild pond ${st.pond}` : st.mode === 'fixture' ? 'test pond' : `level ${st.level}`;
+  return {
+    game: 'Bloom Hop',
+    address: location.origin + location.pathname,
+    updated: document.lastModified,
+    build: window.desktop ? `desktop app (${window.desktop.platform})` : 'web',
+    browser: navigator.userAgent,
+    screen: `${innerWidth}x${innerHeight} @${devicePixelRatio}x`,
+    input: lastInput,
+    state: flat(`${where}; ${st.overlay || 'playing'}; frog ${st.frog ? st.frog.x + ',' + st.frog.y : '-'}; flies left ${st.fliesLeft ?? '-'}; move ${st.turn}; power-up ${st.powerup || 'none'}; undos ${st.undos}; hints ${st.hintsUsed}`),
+    errors: errors.join(' | ') || 'none',
+  };
 };
 
 // ---------- boot ----------

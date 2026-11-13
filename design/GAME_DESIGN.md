@@ -209,6 +209,7 @@ disabled**; the level's "must hold" checks pass (see Structure).
 | Mute | M | Sound button (top corner) |
 | Skip the bloom | Any key | Click |
 | Menus | Arrows + Enter / Space | Click |
+| Report a bug | Ctrl+Shift+F (F is free: no game key uses it), or "Report a bug" in the pause menu or on the title menu | Report a bug button |
 
 **Phone (touch)**
 

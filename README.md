@@ -50,6 +50,8 @@ then come back mirrored and spun around, so the pond never runs dry.
 - **Undo:** Z, as many times as you like. **Retry:** R (and Undo takes it
   back). **Hint:** H.
 - **Pause:** Esc or P. **Mute:** M.
+- Found a bug? Pause and pick "Report a bug", or press Ctrl+Shift+F (you'll
+  need a GitHub account).
 - On a phone, the buttons sit below the pond, or beside it when you hold the
   phone sideways. You can install it from your browser's menu to play full
   screen, even offline.
@@ -67,13 +69,18 @@ one command:
 
 > /gg:gamegen Make an overhead puzzle game in which you're a frog hopping from lilipad to lilipad and each one can only handle so many hops before it sinks and the goal is to hop on every lilipad, perhaps each one has a fly on it or something, and there's music and maybe a dozen level that get harder as you go. They can be generated, but, should always be possible to beat. You could also use your tongue to nudge enemies or something. There could also be turtle pads that surface and sink or fish that come up and give you power ups. When you hop to every lilipad flowers around the level all bloom and you celebrate before moving on.
 
-That's it: no other instructions, no hand-drawn art, no hand-written code.
+That's all it took: no hand-drawn art, no hand-written code.
 From there, gamegen wrote a design, had a team of reviewer agents (a player,
 a builder and an art director) pick it apart over two rounds, then generated the art and
 audio, built the game, play-tested every level on desktop and phone sizes, and
 had a fresh playtester and bug hunter go over the result. The levels come from
 a generator that walks the frog through each pond so a winning route always
 exists, and `node tools/verify-levels.mjs` re-checks all 162 ponds.
+
+Later, to add a "Report a bug" button that turns a player's report into a
+GitHub issue, with a picture of the moment it went wrong:
+
+> /gamegen --feedback on --publish --no-confirm
 
 gamegen brings four plugins along. Here's what each one made.
 

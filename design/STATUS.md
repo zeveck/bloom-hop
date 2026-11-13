@@ -1,12 +1,16 @@
 # Bloom Hop: progress
 
-## Request (as typed)
+## Requests (as typed)
 
 /gg:gamegen Make an overhead puzzle game in which you're a frog hopping from lilipad to lilipad and each one can only handle so many hops before it sinks and the goal is to hop on every lilipad, perhaps each one has a fly on it or something, and there's music and maybe a dozen level that get harder as you go. They can be generated, but, should always be possible to beat. You could also use your tongue to nudge enemies or something. There could also be turtle pads that surface and sink or fish that come up and give you power ups. When you hop to every lilipad flowers around the level all bloom and you celebrate before moving on.
+
+/gamegen --feedback on --publish --no-confirm (run for the owner on 2026-11-13)
 
 ## Settings
 
 - Platform: both (desktop + phone) · Target: web · Scope: medium · Budget: $20 · Rounds: 2
+- Feedback: on
+- Credit: Rich Conlan
 - Game folder: /workspaces/dc-test (it was essentially empty)
 - Available: OpenAI (imagegen2, anim8gen) ok, Gemini (nanogen) ok, ElevenLabs (audiogen) ok (restricted key; the person confirmed a paid plan, so no ElevenLabs credit is needed), node, Python + Pillow (installed this run), playwright-cli
 
@@ -20,6 +24,7 @@
 - [x] Play-test: all 12 levels by real keys, level 6 by touch (taps, swipes, beetle tap), fixtures (dunk, stuck, retry-undo, dead+hint, leap, fish), wild #1/#75/#150/#151/#1000, title/howto/pause/mute/save, desktop + phone portrait/landscape, no console errors
 - [x] Final review: playtester (9 findings) and bug hunter (10 findings), all fixed and re-tested; all 12 levels replayed again
 - [x] Wrap up: social card, README, Pages workflow, served at http://localhost:8123
+- [x] Change (2026-11-13): "Report a bug" (feedback on) in the pause menu and on the title menu, Ctrl+Shift+F shortcut, issue form; play-tested at desktop, small window and phone (both ways), all 12 solutions replayed
 
 ## Notes
 

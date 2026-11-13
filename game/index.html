@@ -45,6 +45,12 @@
   #link-github { right: calc(env(safe-area-inset-right) + 12px); }
   @media (pointer: coarse), (max-width: 600px) { .title-link { font-size: 11px; padding: 6px; } }
   @media (max-width: 359px) { body.sound-prompt #link-home { display: none; } }
+  /* "Report a bug" form: in the game's cream, ink and jade, and free of the page's no-select and no-touch rules,
+     so phones can type into it. */
+  gh-feedback { -webkit-user-select: text; user-select: text; touch-action: auto; -webkit-touch-callout: default;
+    font-family: 'Fredoka', system-ui, sans-serif;
+    --gh-feedback-bg: #fff8e8; --gh-feedback-text: #2d3a1e; --gh-feedback-border: #b9c9a4;
+    --gh-feedback-input-bg: #fffdf6; }
 </style>
 </head>
 <body>
@@ -53,6 +59,20 @@
 <div id="fontwarm">Bloom Hop</div>
 <a class="title-link" id="link-home" href="https://synapticnoise.com/">synapticnoise.com</a>
 <a class="title-link" id="link-github" href="https://github.com/zeveck/bloom-hop" target="_blank" rel="noopener" title="Bloom Hop on GitHub: how it was made" aria-label="Bloom Hop on GitHub: how it was made">GitHub</a>
+<script>
+  // Ctrl+Shift+F opens "Report a bug" from anywhere, even if the game is stuck.
+  // Kept apart from the game's code, so an error there can't stop it. (F is no game key.)
+  addEventListener('keydown', (e) => {
+    if (!e.ctrlKey || !e.shiftKey || e.altKey || e.metaKey || e.key.toLowerCase() !== 'f') return;
+    const fb = document.getElementById('report');
+    if (!fb?.getAttribute('repo') || document.activeElement === fb || typeof fb.open !== 'function') return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    try { window.reportShortcut?.(); } catch {}
+    fb.open();
+  }, true);
+</script>
+<script type="module" src="vendor/gh-feedback.js"></script>
 <script type="module" src="src/main.js"></script>
 <script>
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
@@ -60,5 +80,7 @@
     navigator.serviceWorker.register('sw.js');
   }
 </script>
+<gh-feedback id="report" trigger="none" repo="zeveck/bloom-hop" template="bug.yml"
+  types="bug,feature" no-severity theme="light" color="#3f8a5a"></gh-feedback>
 </body>
 </html>
