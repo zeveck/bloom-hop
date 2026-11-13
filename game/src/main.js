@@ -44,19 +44,6 @@ addEventListener('unhandledrejection', e => keepError(e.reason?.message ?? e.rea
 if (fb) {
   fb.getScreenshot = () => pauseShot ?? new Promise(r => canvas.toBlob(r, 'image/png'));
   if (window.desktop) fb.openLink = url => { window.open(url, '_blank'); return true; };
-  // Two fixes for phones, kept here so the vendor file stays unchanged (an adopted sheet
-  // survives the form's re-renders): on narrow screens gh-feedback makes the form a bottom
-  // sheet, but its centring transform still applies and pushes the sheet off the top-left;
-  // and on short screens (a phone held sideways) the form is taller than the screen.
-  customElements.whenDefined('gh-feedback').then(() => {
-    try {
-      const sheet = new CSSStyleSheet();
-      sheet.replaceSync('@media (max-width: 479px) { .popup.centered, .popup.centered.open { transform: none; } }' +
-        ' .popup { max-height: min(500px, calc(100vh - 16px)); max-height: min(500px, calc(100dvh - 16px)); }' +
-        ' @media (max-width: 479px) { .popup.open { max-height: min(80vh, calc(100dvh - 16px)); } }');
-      fb.shadowRoot.adoptedStyleSheets = [...fb.shadowRoot.adoptedStyleSheets, sheet];
-    } catch {}
-  });
 }
 const save = new Save();
 const audio = new Audio(save);
