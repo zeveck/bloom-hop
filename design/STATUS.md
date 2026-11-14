@@ -26,6 +26,7 @@
 - [x] Wrap up: social card, README, Pages workflow, served at http://localhost:8123
 - [x] Change (2026-11-13): "Report a bug" (feedback on) in the pause menu and on the title menu, Ctrl+Shift+F shortcut, issue form; play-tested at desktop, small window and phone (both ways), all 12 solutions replayed
   - Follow-up (2026-11-13): updated the form to gh-feedback 2026.11.13-4, which fixes the phone layout itself, so the phone fix in main.js is gone and the severity choice is back (the form fits without hiding it); re-tested at 1280x720, 800x600 and phone (both ways), all 12 solutions replayed, no reports opened by accident
+  - Follow-up (2026-11-14): Report a bug: updated to the fixed form (gh-feedback 2026.11.14)
 
 ## Notes
 
