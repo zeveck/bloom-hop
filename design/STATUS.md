@@ -6,6 +6,8 @@
 
 /gamegen --feedback on --publish --no-confirm (run for the owner on 2026-11-13)
 
+/gamegen --bugcheck (run for the owner on 2026-11-14, as the first try of --bugcheck)
+
 ## Settings
 
 - Platform: both (desktop + phone) · Target: web · Scope: medium · Budget: $20 · Rounds: 2
@@ -34,3 +36,21 @@
   - Style anchor accepted: game/assets/style-anchor.png (imagegen2, 2 tries)
   - mus-morning made (75 s): game/assets/audio/music/mus-morning.mp3
   - game/src/rules.js, solver.js (cycle-safe), generator.js (walk with creatures; tested: l1-l12 configs produce valid, solver-confirmed levels)
+
+## Bug check (2026-11-14)
+
+Sorted again on 2026-11-19 by gamegen's bar ("The bar" in review-roles.md). None fixed yet.
+
+Worth fixing, most important first:
+1. Sound may never start on iPhones: audio unlocks only on pointerdown, which iOS doesn't count as a gesture (one line: also on pointerup). Not testable here.
+2. Music stays quiet after Pause, then Levels (goScreen doesn't undo setPaused). Small.
+3. The opening hint bubble hides pads on the teaching levels (phone, level 1: 2 of 5 pads, one on the only solution). Small.
+4. The gift bubble says "Press E" on phones (main.js:321-322; TOUCH exists). One line.
+5. The victory screen overlaps on phones (count over the frog, heading and buttons over the flower ring). Medium.
+6. Level select: decorations cover pads and labels at 800x600 and on a sideways phone. Small.
+7. Locked level pads show no number, so the order reads oddly on desktop. Small.
+8. The "Pond in Bloom!" card is see-through and can hide the frog. Small.
+9. Lone last words on a line in canvas text on phones. Small.
+10. The GitHub footer is drawn over a reed (check it's on a screen every player sees). Tiny.
+
+Below the bar: a hint finishing while paused (needs H then Esc within the hint's time); level-select arrow keys don't follow the winding grid (every level still reachable); a long bare loading screen on slow mobile data; the report form's buttons in a different font and its "Send Feedback" heading (in gh-feedback: zeveck/gh-feedback#6). The frame-by-frame flash check couldn't run: this game predates the frame log.
